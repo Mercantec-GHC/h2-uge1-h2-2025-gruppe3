@@ -1,0 +1,53 @@
+﻿
+@page "/Benzin"
+@inject HttpClient Http
+
+@inject BlazorWASM.Services.APIService ApiService
+@using System.Text.Json;
+
+<PageTitle>Benzin</PageTitle>
+
+<h1>Benzin</h1>
+
+@if (data == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    foreach (var item in data)
+    {
+
+        <li>
+            <b>Price:</b>
+            @item.Price
+        </li>
+        <li>
+            <b>Date:</b>
+            @item.Date
+        </li>
+    }
+}
+
+@code {
+
+
+    private List<BenzinData>? data;
+    protected override async Task OnInitializedAsync()
+    {
+        var http = new HttpClient();
+        data = await http.GetFromJsonAsync<List<BenzinData>>
+        ("https://opgaver.mercantec.tech/Opgaver/Miles95");
+    }
+    // Husk at lave en modelklasse der matcher API'et
+
+    public class BenzinData
+    {
+        public string? Price { get; set; }
+        public string? Date { get; set; }
+    }
+
+
+
+
+}
