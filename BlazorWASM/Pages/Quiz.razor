@@ -1,6 +1,7 @@
 ﻿@page "/quiz"
 @inject HttpClient Http
 @inject BlazorWASM.Services.APIService ApiService
+@using System.Net;
 @using System.Text.Json;
 
 <h3>Quiz</h3>
@@ -15,52 +16,66 @@ else
 	{
 
 		<li>
-			<b>Price:</b>
+			<b>question:</b>
 			@item.question
 		</li>
 		<li>
-			<b>Date:</b>
+			<b>correct_answer:</b>
 			@item.correct_answer
 		</li>
 		<li>
-			<b>Date:</b>
+			<b>difficulty:</b>
 			@item.difficulty
 		</li>
 	}
 }
 @code {
-private List<Result>? data;
+	private List<Result>? data;
 
 	protected override async Task OnInitializedAsync()
-	{ 
-	var root = await Http.GetFromJsonAsync<Root>("https://opentdb.com/api.php?amount=30");
+	{
+		var root = await Http.GetFromJsonAsync<Root>("https://opentdb.com/api.php?amount=30");
 		if (root != null)
 		{
 			data = root.results;
+			// var answers = data.Select(q => q.correct_answer).ToList();
+
+			foreach (var item in data)
+			{
+				item.question = WebUtility.HtmlDecode(item.question);
+				item.correct_answer = WebUtility.HtmlDecode(item.correct_answer);
+
+				// Decode each incorrect answer too
+				for (int i = 0; i < item.incorrect_answers.Count; i++)
+				{
+					item.incorrect_answers[i] = WebUtility.HtmlDecode(item.incorrect_answers[i]);
+				}
+			}
 		}
 		else
 		{ return; }
+
 	}
-	
-	
 
-// Husk at lave en modelklasse der matcher API'et
 
-// Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
-public class Result
-{
-	public string type { get; set; }
-	public string difficulty { get; set; }
-	public string category { get; set; }
-	public string question { get; set; }
-	public string correct_answer { get; set; }
-	public List<string> incorrect_answers { get; set; }
-}
-public class Root
-{
-	public int response_code { get; set; }
-	public List<Result> results { get; set; }
-}
+
+	// Husk at lave en modelklasse der matcher API'et
+
+	// Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
+	public class Result
+	{
+		public string type { get; set; }
+		public string difficulty { get; set; }
+		public string category { get; set; }
+		public string question { get; set; }
+		public string correct_answer { get; set; }
+		public List<string> incorrect_answers { get; set; }
+	}
+	public class Root
+	{
+		public int response_code { get; set; }
+		public List<Result> results { get; set; }
+	}
 
 }
 
