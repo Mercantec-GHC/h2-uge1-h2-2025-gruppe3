@@ -3,10 +3,37 @@
 @inject BlazorWASM.Services.APIService ApiService
 @using System.Text.Json;
 @using System.Diagnostics.CodeAnalysis;
+@using System.Net;
 
 
 
 <h3>Quiz</h3>
+
+
+
+
+<p role="status">Question number: @questionCount/30</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+@code {
+	private int currentCount = 0;
+	private int questionCount = 1;
+	private void IncrementCount()
+	{
+		currentCount++;
+		questionCount = currentCount + 1;
+	}
+
+
+
+}
+
+
+
+
+
+
+
 
 @if (data == null)
 {
@@ -14,24 +41,33 @@
 }
 else
 {
-	foreach (var item in data)
-	{
 
-		<li>
-			<b>Price:</b>
-			@item.question
-		</li>
-		<li>
-			<b>Date:</b>
-			@item.correct_answer
-		</li>
-		<li>
-			<b>Date:</b>
-			@item.difficulty
-		</li>
+
+				//int count = data.Count;
+		var item = data[currentCount];
+		Console.WriteLine(item);
+
+			<li>
+				<b>Question:</b>
+				@item.question
+			</li>
+			<li>
+				<b>Correct answer:</b>
+				@item.correct_answer
+			</li>
+			<li>
+				<b>Difficulty:</b>
+				@item.difficulty
+			</li>
+			<hr>
+
+
 	}
 }
 @code {
+
+
+
 private List<Result>? data;
 
 	protected override async Task OnInitializedAsync()
@@ -40,10 +76,23 @@ private List<Result>? data;
 		if (root != null)
 		{
 			data = root.results;
+
+			foreach (var item in data)
+			{
+				item.question = WebUtility.HtmlDecode(item.question);
+				item.correct_answer = WebUtility.HtmlDecode(item.correct_answer);
+
+				// Decode each incorrect answer too
+				for (int i = 0; i < item.incorrect_answers.Count; i++)
+				{
+					item.incorrect_answers[i] = WebUtility.HtmlDecode(item.incorrect_answers[i]);
+				}
+			}
 		}
 		else
 		{ return; }
 	}
+
 
 
 public class Result
