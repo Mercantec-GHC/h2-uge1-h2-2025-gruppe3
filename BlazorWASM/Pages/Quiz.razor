@@ -1,28 +1,68 @@
 ﻿@page "/quiz"
 @inject HttpClient Http
 @inject BlazorWASM.Services.APIService ApiService
+@using System.Text.Json;
 
 <h3>Quiz</h3>
 
 @if (data == null)
 {
-    <p><em>Loading...</em></p>
+	<p><em>Loading...</em></p>
 }
 else
 {
-    foreach (var item in data)
-    {
+	foreach (var item in data)
+	{
 
-        <li>
-            <b>Price:</b>
-            @item.Price
-        </li>
-        <li>
-            <b>Date:</b>
-            @item.Date
-        </li>
-    }
+		<li>
+			<b>Price:</b>
+			@item.question
+		</li>
+		<li>
+			<b>Date:</b>
+			@item.correct_answer
+		</li>
+		<li>
+			<b>Date:</b>
+			@item.difficulty
+		</li>
+	}
 }
 @code {
+private List<Result>? data;
+
+	protected override async Task OnInitializedAsync()
+	{ 
+	var root = await Http.GetFromJsonAsync<Root>("https://opentdb.com/api.php?amount=30");
+		if (root != null)
+		{
+			data = root.results;
+		}
+		else
+		{ return; }
+	}
+	
+	
+
+// Husk at lave en modelklasse der matcher API'et
+
+// Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
+public class Result
+{
+	public string type { get; set; }
+	public string difficulty { get; set; }
+	public string category { get; set; }
+	public string question { get; set; }
+	public string correct_answer { get; set; }
+	public List<string> incorrect_answers { get; set; }
+}
+public class Root
+{
+	public int response_code { get; set; }
+	public List<Result> results { get; set; }
+}
 
 }
+
+
+
