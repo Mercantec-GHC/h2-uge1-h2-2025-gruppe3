@@ -1,0 +1,28 @@
+﻿@page "/quiz"
+@inject HttpClient Http
+@inject BlazorWASM.Services.APIService ApiService
+
+<h3>Quiz</h3>
+
+@if (data == null)
+{
+    <p><em>Loading...</em></p>
+}
+else
+{
+    foreach (var item in data)
+    {
+
+        <li>
+            <b>Price:</b>
+            @item.Price
+        </li>
+        <li>
+            <b>Date:</b>
+            @item.Date
+        </li>
+    }
+}
+@code {
+
+}
