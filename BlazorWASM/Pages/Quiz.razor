@@ -2,6 +2,9 @@
 @inject HttpClient Http
 @inject BlazorWASM.Services.APIService ApiService
 @using System.Text.Json;
+@using System.Diagnostics.CodeAnalysis;
+
+
 
 <h3>Quiz</h3>
 
@@ -41,12 +44,8 @@ private List<Result>? data;
 		else
 		{ return; }
 	}
-	
-	
 
-// Husk at lave en modelklasse der matcher API'et
 
-// Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
 public class Result
 {
 	public string type { get; set; }
@@ -61,7 +60,6 @@ public class Root
 	public int response_code { get; set; }
 	public List<Result> results { get; set; }
 }
-
 }
 
 
