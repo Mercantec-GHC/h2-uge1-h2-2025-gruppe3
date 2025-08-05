@@ -45,7 +45,7 @@ else
 				item.question = WebUtility.HtmlDecode(item.question);
 				item.correct_answer = WebUtility.HtmlDecode(item.correct_answer);
 
-				// Decode each incorrect answer too
+				
 				for (int i = 0; i < item.incorrect_answers.Count; i++)
 				{
 					item.incorrect_answers[i] = WebUtility.HtmlDecode(item.incorrect_answers[i]);
