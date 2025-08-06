@@ -4,6 +4,7 @@
 @using System.Text.Json;
 @using System.Diagnostics.CodeAnalysis;
 @using System.Net;
+@using System.Text.Json;
 
 
 
@@ -41,6 +42,8 @@
 }
 else
 {
+	foreach (var item in data)
+	{
 
 
 				//int count = data.Count;
@@ -76,6 +79,7 @@ private List<Result>? data;
 		if (root != null)
 		{
 			data = root.results;
+			// var answers = data.Select(q => q.correct_answer).ToList();
 
 			foreach (var item in data)
 			{
@@ -91,10 +95,14 @@ private List<Result>? data;
 		}
 		else
 		{ return; }
+
 	}
 
 
 
+	// Husk at lave en modelklasse der matcher API'et
+
+	// Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
 public class Result
 {
 	public string type { get; set; }
@@ -109,6 +117,7 @@ public class Root
 	public int response_code { get; set; }
 	public List<Result> results { get; set; }
 }
+
 }
 
 
