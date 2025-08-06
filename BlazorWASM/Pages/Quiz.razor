@@ -1,10 +1,40 @@
 ﻿@page "/quiz"
 @inject HttpClient Http
 @inject BlazorWASM.Services.APIService ApiService
+@using System.Text.Json;
+@using System.Diagnostics.CodeAnalysis;
 @using System.Net;
 @using System.Text.Json;
 
+
+
 <h3>Quiz</h3>
+
+
+
+
+<p role="status">Question number: @questionCount/30</p>
+
+<button class="btn btn-primary" @onclick="IncrementCount">Click me</button>
+@code {
+	private int currentCount = 0;
+	private int questionCount = 1;
+	private void IncrementCount()
+	{
+		currentCount++;
+		questionCount = currentCount + 1;
+	}
+
+
+
+}
+
+
+
+
+
+
+
 
 @if (data == null)
 {
@@ -15,26 +45,37 @@ else
 	foreach (var item in data)
 	{
 
-		<li>
-			<b>question:</b>
-			@item.question
-		</li>
-		<li>
-			<b>correct_answer:</b>
-			@item.correct_answer
-		</li>
-		<li>
-			<b>difficulty:</b>
-			@item.difficulty
-		</li>
+
+				//int count = data.Count;
+		var item = data[currentCount];
+		Console.WriteLine(item);
+
+			<li>
+				<b>Question:</b>
+				@item.question
+			</li>
+			<li>
+				<b>Correct answer:</b>
+				@item.correct_answer
+			</li>
+			<li>
+				<b>Difficulty:</b>
+				@item.difficulty
+			</li>
+			<hr>
+
+
 	}
 }
 @code {
-	private List<Result>? data;
+
+
+
+private List<Result>? data;
 
 	protected override async Task OnInitializedAsync()
-	{
-		var root = await Http.GetFromJsonAsync<Root>("https://opentdb.com/api.php?amount=30");
+	{ 
+	var root = await Http.GetFromJsonAsync<Root>("https://opentdb.com/api.php?amount=30");
 		if (root != null)
 		{
 			data = root.results;
@@ -45,7 +86,7 @@ else
 				item.question = WebUtility.HtmlDecode(item.question);
 				item.correct_answer = WebUtility.HtmlDecode(item.correct_answer);
 
-				
+				// Decode each incorrect answer too
 				for (int i = 0; i < item.incorrect_answers.Count; i++)
 				{
 					item.incorrect_answers[i] = WebUtility.HtmlDecode(item.incorrect_answers[i]);
@@ -62,20 +103,20 @@ else
 	// Husk at lave en modelklasse der matcher API'et
 
 	// Root myDeserializedClass = JsonConvert.DeserializeObject<Root>(myJsonResponse);
-	public class Result
-	{
-		public string type { get; set; }
-		public string difficulty { get; set; }
-		public string category { get; set; }
-		public string question { get; set; }
-		public string correct_answer { get; set; }
-		public List<string> incorrect_answers { get; set; }
-	}
-	public class Root
-	{
-		public int response_code { get; set; }
-		public List<Result> results { get; set; }
-	}
+public class Result
+{
+	public string type { get; set; }
+	public string difficulty { get; set; }
+	public string category { get; set; }
+	public string question { get; set; }
+	public string correct_answer { get; set; }
+	public List<string> incorrect_answers { get; set; }
+}
+public class Root
+{
+	public int response_code { get; set; }
+	public List<Result> results { get; set; }
+}
 
 }
 
