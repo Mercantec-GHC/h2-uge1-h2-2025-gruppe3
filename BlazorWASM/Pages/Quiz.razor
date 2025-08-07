@@ -60,7 +60,7 @@ else if (activeQuiz)
             </button>
         }
 
-    <button class="btn btn-primary float-end" style="margin-top:15px;" @onclick="NextQuestion">
+        <button class="btn btn-primary float-end" style="margin-top:15px;" @onclick="NextQuestion" disabled="@(!selected)">
         Next Question
     </button>
 }
