@@ -7,183 +7,174 @@
 
 @if (data == null)
 {
-    <p><em>Loading...</em></p>
+	<p><em>Loading...</em></p>
 }
 else if (activeQuiz)
 {
-    <h3>Quiz</h3>
+	<h3>Quiz</h3>
 
-    <p role="status">
-        <b>
-            Question number: 
-        </b>
-        @questionCount/@dataTotal
-    </p>
+	<p role="status">
+		<b>
+			Question number:
+		</b>
+		@questionCount/@dataTotal
+	</p>
 
-    <button class="btn btn-primary" @onclick="NextQuestion" disabled="@(!selected)">
-        Next Question
-    </button>
-@*     <button class="btn btn-primary" @onclick="NextQuestion">
+	<button class="btn btn-primary" @onclick="NextQuestion" disabled="@(!selected)">
+		Next Question
+	</button>
+	@*     <button class="btn btn-primary" @onclick="NextQuestion">
         @navigate_button_text
     </button>
  *@
-    var item = data[currentCount];
+	var item = data[currentCount];
 
-    <ul>
-        <li>
-            <b>
-                Question:
-            </b> 
-            @item.question
-        </li>
-        <li>
-            <b>
-                Correct answer:
-            </b> 
-            @item.correct_answer
-        </li>
-        <li>
-            <b>
-                Difficulty:
-            </b> 
-            @item.difficulty
-        </li>
-    </ul>
+	<p>
+		<b>
+			Question:
+		</b>
+		@item.question
+	</p>
+	<p>
+		<b>
+			Difficulty:
+		</b>
+		@item.difficulty
+	</p>
 
-    @foreach (var answer in all_answers)
-    {
-        var index = Array.IndexOf(all_answers, answer);
-        <button class="btn btn-@(color_array[index]) m-1 border border-secondary"
-                disabled="@selected"
-                @onclick="() => ChangeColor(index, answer, data[currentCount].correct_answer)">
-            @answer
-        </button>
-    }
+	@foreach (var answer in all_answers)
+	{
+		var index = Array.IndexOf(all_answers, answer);
+		<button class="btn btn-@(color_array[index]) m-1 border border-secondary"
+				disabled="@selected"
+				@onclick="() => ChangeColor(index, answer, data[currentCount].correct_answer)">
+			@answer
+		</button>
+	}
 }
 else
 {
-    <h3>Quiz completed</h3>
+	<h3>Quiz completed</h3>
 
-    <p role="status">
-        <b>
-            Correct answers:
-        </b>
-        @correctCount/@dataTotal
-    </p>
+	<p role="status">
+		<b>
+			Correct answers:
+		</b>
+		@correctCount/@dataTotal
+	</p>
 }
 
 @code {
 
-    private List<Result>? data;
+	private List<Result>? data;
 
-    private string[] all_answers = Array.Empty<string>();
-    private string[] color_array = Array.Empty<string>();
+	private string[] all_answers = Array.Empty<string>();
+	private string[] color_array = Array.Empty<string>();
 
-    private string navigate_button_text = "Next Question";
+	private string navigate_button_text = "Next Question";
 
-    private bool activeQuiz = true;
-    private bool selected = false;
+	private bool activeQuiz = true;
+	private bool selected = false;
 
-    private int dataTotal = 0;
-    private int currentCount = 0;
-    private int questionCount = 1;
-    private int correctCount = 0;
+	private int dataTotal = 0;
+	private int currentCount = 0;
+	private int questionCount = 1;
+	private int correctCount = 0;
 
 
-    protected override async Task OnInitializedAsync()
-    {
-        var root = await Http.GetFromJsonAsync<Root>("https://opentdb.com/api.php?amount=30");
-        if (root != null)
-        {
-            data = root.results;
+	protected override async Task OnInitializedAsync()
+	{
+		var root = await Http.GetFromJsonAsync<Root>("https://opentdb.com/api.php?amount=30");
+		if (root != null)
+		{
+			data = root.results;
 
-            // Decode HTML
-            foreach (var item in data)
-            {
-                item.question = WebUtility.HtmlDecode(item.question);
-                item.correct_answer = WebUtility.HtmlDecode(item.correct_answer);
-                for (int i = 0; i < item.incorrect_answers.Count; i++)
-                {
-                    item.incorrect_answers[i] = WebUtility.HtmlDecode(item.incorrect_answers[i]);
-                }
-            }
-            Console.WriteLine("Data count = " + data.Count);
-            dataTotal = data.Count;
+			// Decode HTML
+			foreach (var item in data)
+			{
+				item.question = WebUtility.HtmlDecode(item.question);
+				item.correct_answer = WebUtility.HtmlDecode(item.correct_answer);
+				for (int i = 0; i < item.incorrect_answers.Count; i++)
+				{
+					item.incorrect_answers[i] = WebUtility.HtmlDecode(item.incorrect_answers[i]);
+				}
+			}
+			dataTotal = data.Count;
 
-            LoadQuestion();
-        }
-    }
+			LoadQuestion();
+		}
+	}
 
-    private void LoadQuestion()
-    {
-        if (data == null || currentCount >= dataTotal)
-            return;
+	private void LoadQuestion()
+	{
+		if (data == null || currentCount >= dataTotal)
+			return;
 
-        if (currentCount + 1 == dataTotal)
-        {
-            navigate_button_text = "Show quiz results";
-        }
+		if (currentCount + 1 == dataTotal)
+		{
+			navigate_button_text = "Show quiz results";
+		}
 
-        var item = data[currentCount];
+		var item = data[currentCount];
 
-        all_answers = item.incorrect_answers.Append(item.correct_answer).ToArray();
-        Random.Shared.Shuffle(all_answers);
+		all_answers = item.incorrect_answers.Append(item.correct_answer).ToArray();
+		Random.Shared.Shuffle(all_answers);
 
-        color_array = new string[all_answers.Length];
+		color_array = new string[all_answers.Length];
 
-        for (int i = 0; i < all_answers.Length; i++)
-        {
-            color_array[i] = "light";
-        }
+		for (int i = 0; i < all_answers.Length; i++)
+		{
+			color_array[i] = "light";
+		}
 
-        selected = false;
-    }
+		selected = false;
+	}
 
-    private void ChangeColor(int clickedIndex, string clickedAnswer, string correctAnswer)
-    {
-        Console.WriteLine($"Clicked index: {clickedIndex}");
-        Console.WriteLine($"Clicked answer: {clickedAnswer}");
-        Console.WriteLine($"Correct answer: {correctAnswer}");
+	private void ChangeColor(int clickedIndex, string clickedAnswer, string correctAnswer)
+	{
+		Console.WriteLine($"Clicked index: {clickedIndex}");
+		Console.WriteLine($"Clicked answer: {clickedAnswer}");
+		Console.WriteLine($"Correct answer: {correctAnswer}");
 
-        if (clickedAnswer == correctAnswer)
-        {
-            Console.WriteLine("Korrekt svar valgt");
-            color_array[clickedIndex] = "success";
+		if (clickedAnswer == correctAnswer)
+		{
+			Console.WriteLine("Korrekt svar valgt");
+			color_array[clickedIndex] = "success";
 
-            correctCount++;
-        }
-        else
-        {
-            Console.WriteLine("Forkert svar valgt");
-            color_array[clickedIndex] = "danger";
+			correctCount++;
+		}
+		else
+		{
+			Console.WriteLine("Forkert svar valgt");
+			color_array[clickedIndex] = "danger";
 
-            int correctIndex = Array.IndexOf(all_answers, correctAnswer);
-            Console.WriteLine($"Correct index in all_answers: {correctIndex}");
+			int correctIndex = Array.IndexOf(all_answers, correctAnswer);
+			Console.WriteLine($"Correct index in all_answers: {correctIndex}");
 
-            color_array[correctIndex] = "success";
-        }
+			color_array[correctIndex] = "success";
+		}
 
-        selected = true;
-    }
+		selected = true;
+	}
 
-    private void NextQuestion()
-    {
-        if (data == null)
-            return;
+	private void NextQuestion()
+	{
+		if (data == null)
+			return;
 
-        // Afslut quiz
-        if (currentCount + 1 >= dataTotal)
-        {
-            selected = false;
-            activeQuiz = false;
-            Console.WriteLine("Quiz er færdigt");
+		// Afslut quiz
+		if (currentCount + 1 >= dataTotal)
+		{
+			selected = false;
+			activeQuiz = false;
+			Console.WriteLine("Quiz er færdigt");
 
-            return;
-        }
+			return;
+		}
 
-        currentCount++;
-        questionCount = currentCount + 1;
+		currentCount++;
+		questionCount = currentCount + 1;
 
-        LoadQuestion();
-    }
+		LoadQuestion();
+	}
 }
