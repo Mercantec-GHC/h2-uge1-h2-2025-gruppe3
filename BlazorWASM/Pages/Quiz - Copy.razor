@@ -1,4 +1,4 @@
-﻿@page "/quiz"
+﻿@page "/quiz_2"
 @inject HttpClient Http
 @inject BlazorWASM.Services.APIService ApiService
 @using System.Text.Json;
@@ -50,12 +50,9 @@ else if (activeQuiz)
 
         @for (int i = 0; i < all_answers.Length; i++)
         {
-            int button_number = i;
-            var answer = all_answers[button_number];
-
-            <button class="btn btn-@(color_array[button_number]) w-50 border border-secondary" style="height:75px;"
-                    disabled="@selected"
-                    @onclick="() => ChangeColor(button_number, answer, data[currentCount].correct_answer)">
+            int i_2 = i;
+            var answer = all_answers[i];
+            <button @onclick="() => ChangeColor(i_2, answer, data[currentCount].correct_answer)">
                 @answer
             </button>
         }
@@ -161,7 +158,14 @@ else
 
         // Tilføjer strengen "correct_answer" til listen "incorrect_answers", så den står først i listen
         // Konvertere hele listen til et array
-        all_answers = item.incorrect_answers.Append(item.correct_answer).ToArray();
+        // all_answers = item.incorrect_answers.Append(item.correct_answer).ToArray();
+        // Opret ny liste og tilføj alle svar
+        var answers = new List<string>(item.incorrect_answers)
+{
+    item.correct_answer
+};
+
+        all_answers = answers.ToArray();
 
         //  Afgør om svarmulighederne er af typen "multiple" eller ikke
         if (item.type == "multiple")
@@ -192,6 +196,8 @@ else
 
     private void ChangeColor(int clickedIndex, string clickedAnswer, string correctAnswer)
     {
+        Console.WriteLine($"Clicked index: {clickedIndex}, Array length: {color_array.Length}");
+
         //  Tjekker om det klikkede svar er det samme som det korrekt svar
         if (clickedAnswer == correctAnswer)
         {
@@ -206,19 +212,23 @@ else
             // Forkert svar valgt
             color_array[clickedIndex] = "danger";
 
+
+
+
             // Find korrekt index manuelt
-            for (int i = 0; i < all_answers.Length; i++)
+            @for (int i = 0; i < all_answers.Length && i < color_array.Length; i++)
             {
-                int button_number = i;
-                if (all_answers[button_number] == correctAnswer)
+                if (all_answers[i] == correctAnswer)
                 {
                     // Viser korrekte svar´s indeks-tal
-                    color_array[button_number] = "success";
+                    color_array[i] = "success";
                     break;
                 }
             }
 
+
         }
+
         selected = true;
     }
 
@@ -231,6 +241,7 @@ else
         if (currentCount + 1 >= dataTotal)
         {
             activeQuiz = false;
+
             return;
         }
 
