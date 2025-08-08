@@ -21,35 +21,42 @@
 @* Hvis boolen er sand afgøres det at quizzen stadigvæk er i gang indtil bool er falskt *@
 else if (activeQuiz)
 {
+    // Gemmer data for det nuværrende spørgsmål 
     var item = data[currentCount];
 
     <h3>Quiz</h3>
 
+        // Viser spørgsmål nummer og antal spørgsmål i alt
     <p role="status" style="float:right; margin:0px,0px,0px,15px;">
         @questionCount/@dataTotal
     </p>
 
     <p style="height:40px; margin-top:50px;">
+        @* Viser spørgsmål *@
         <b>
             Question:
         </b>
         @item.question
         </p>
-    <p>
+        <p>
+        @* Viser kategori *@
         <b>
             Category:
         </b>
         @item.category
     </p>
-    <p>
+        <p>
+            @* Viser sværhedsgrad *@
         <b>
             Difficulty:
         </b>
         @item.difficulty
     </p>
 
+        // Afgør hvilket svar der nået til i quizzen samt hvad farve skal ændres til en knap trykkes
         @for (int i = 0; i < all_answers.Length; i++)
         {
+            // Variabel for hvert loop-iteration, aå onclick kan benytte et unikt index.
             int button_number = i;
             var answer = all_answers[button_number];
 
@@ -60,14 +67,16 @@ else if (activeQuiz)
             </button>
         }
 
+    // Onclick skifter spørgsmål
         <button class="btn btn-primary float-end" style="margin-top:15px;" @onclick="NextQuestion" disabled="@(!selected)">
-        Next Question
+            @navigate_button_text;
     </button>
 }
 else
 {
     <h3>Quiz completed</h3>
 
+    // Viser antal korrekte svar og antal korrekte svar i alt
     <p role="status">
         <b>
             Correct answers:
